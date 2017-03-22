@@ -363,7 +363,7 @@ module funcapp
                             label = ["Version 1" "Version 2"], legendfont = font(6))
         
         l = @layout [a b; c]
-        return plot(plot1, plot2, plot3, layout = l)
+        return Plots.plot(plot1, plot2, plot3, layout = l)
     
 	end
 
