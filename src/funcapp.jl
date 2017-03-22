@@ -7,6 +7,9 @@ module funcapp
 	using ApproXD
 	using Base.Test
 
+    pyplot()
+
+
 	"""
 		Approximate `f(k)	= k + 2k^2 - exp(-k)` using Chebysev approximation.
 
@@ -252,13 +255,13 @@ module funcapp
 
 			println(my_knot)
 
-			# NOTE: nothing was specified regarding the degree of the spline, so picked 5
+			# NOTE: cubic means degree 3
 			if my_knot
 				# pick knots concentrated around 0
-				bs	= ApproXD.BSpline(own_k, 5)
+				bs	= ApproXD.BSpline(own_k, 3)
 			else
 				# ApproXD pickes the knots automatically
-				bs 	= ApproXD.BSpline(13, 5, a, b)
+				bs 	= ApproXD.BSpline(13, 3, a, b)
 			end
 			d 		= full(getBasis(collect(x), bs))				# Basis function, evaluated at x
 			c			= d \ y																	# Approximate coefficients
@@ -281,15 +284,87 @@ module funcapp
 		plot1 = Plots.plot(x_n, y_n, line = 2, xlab = L"x", title = "Runge's function")
 		plot2 = Plots.plot(x_n, err, line = 2, xlab = L"x", title = "Approximation error",
 						label = ["Version 1" "Version 2"])
-		Plots.scatter!(own_k, zeros(13), markersize = 6, label = "Own knots")
+		Plots.scatter!(own_k, zeros(13), markersize = 4, label = "Own knots")
 
 		return plot(plot1, plot2, layout = 2)
 
 	end
 
+
+	"""
+	Function approxiamting $|x|^{0.5}$ via splines, with different node placement, using ApproXD.jl
+
+	#### Fields
+
+	None.
+
+	#### Returns
+
+	3 panels plot: the first show the true function, the second the approximated functions for the
+	two set of nodes, and the third the errors for the two sets of nodes.
+	"""
+
 	function q5()
+        
+        f = x -> abs.(x).^(0.5)
 
+        a, b = -1, 1
 
+        x_n		= linspace(a, b, 200)
+    
+        println(L"Increasing the multiplicity of an internal knot decreases the number of non-zero basis functions at this knot. In fact, if the multiplicity of this knot is $m_k$, there are at most $p - m_k + 1$ non-zero functions at this knot. Moreover, the basis functions are $C^{p-m_k}$ at this knot (where $p$ is the degree of the splines).")
+
+        own_grid = vcat(linspace(a, b, 10), 0, 0, 0) # Note that 0 is not a point of linspace(-1,1, 10), so the multiplicity is three. The total number of knots remain 13.
+        own_grid = sort(own_grid)
+
+        # Approximate the function with BSpline
+        function appro(my_knot::Bool)
+            n 		= 65
+            x 		= linspace(a, b, n)				# grid
+            y			= f.(x)
+
+            # If no knot grid was specifed, use a uniform grid
+            if my_knot
+                # ApproXD picks the knots automatically (uniform grid)
+                bs 	= ApproXD.BSpline(13, 3, a, b)
+            else
+                # pick personalized grid of knots
+                bs	= ApproXD.BSpline(own_grid, 3)
+            end
+            d 		= full(getBasis(collect(x), bs))			# Basis function, evaluated at x
+            c		= d \ y									    # Approximate coefficients
+
+            # use the finer grid to evaluate the approximated function
+            d_1 	= full(getBasis(collect(x_n), bs))			# Basis function, evaluated at x_n
+            y_r	 	= d_1 * c
+
+            return y_r
+        end
+
+        y_n			= f.(x_n)
+        y_app 	= Array{Vector}(2)
+        y_app[1]= appro(false)
+        y_app[2]= appro(true)
+        err 		= Array{Vector}(2)
+        err[1] 	= y_n .- y_app[1]
+        err[2] 	= y_n .- y_app[2]
+
+        plot1 = Plots.plot(x_n, y_n, line = 1, xlab = L"x", ylab = L"$|x|^{0.5}$", 
+                            title = "A function with a kink", legendfont = font(6),
+                            label = "True function")
+        plot2 = Plots.plot(x_n, y_app, line = 2, xlab = L"x", title = "Approximation of 
+                            the kinked function", label = ["Multiplicity at 0" "Unif. knots"],
+                            legendfont = font(5))
+        Plots.scatter!(own_grid, zeros(13), markersize = 3, label = "Own knots",
+                            legendfont = font(5))
+        Plots.scatter!(linspace(-1, 1, 13), zeros(13), markersize = 3, label = "Unif. knots",
+                            legendfont = font(5))
+        plot3 = Plots.plot(x_n, err, line = 2, xlab = L"x", title = "Approximation deviation",
+                            label = ["Version 1" "Version 2"], legendfont = font(6))
+        
+        l = @layout [a b; c]
+        return plot(plot1, plot2, plot3, layout = l)
+    
 	end
 
 
@@ -301,8 +376,9 @@ module funcapp
 		q3()
 		q4a()
 		q4b()
-		# q5()
+		q5()
 	end
 
+    info("end of HW-funcapp")
 
 end
