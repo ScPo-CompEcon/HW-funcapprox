@@ -60,7 +60,7 @@ module funcapp
 		plot1 = Plots.plot(x2, [y2, y_app], line = 1, label = [L"f(x)" L"\hat{f}(x)"],
 						xlab = L"x", title = "Function Approximation", legendfont = font(12))
 		plot2	= Plots.plot(x2, err, line = 3, label = L"$f(x) - \hat{f}(x)$", xlab = L"x",
-						title = "Approximation error", legendfont = font(12))
+						title = "Approximation error", legendfont = font(12), yformatter = :scientific)
 
 		return Plots.plot(plot1, plot2, layout = 2)
 
