@@ -39,9 +39,9 @@ using Base.Test
 	 label="Deviation from true",
 	 title="Chebyshev error"))
 	 @test_approx_eq_eps maximum(err) 0 1e-9
-	 plot(p...)
+	 p1 = plot(p...)
+	 display(p1)
 	end
-
 
 	function q2(n)
 		f(x) = x .+ 2x.^2 - exp(-x)
@@ -68,26 +68,27 @@ using Base.Test
 		push!(q, plot(1:n_new, err,
 		label="Deviation from true",
 		title="Chebyshev error"))
-		plot(q...)
+		q1=plot(q...)
+		display(q1)
 	end
 
 	# plot the first 9 basis Chebyshev Polynomial Basisi Fnctions
 	function q3(n)
 		m=9
 		Phi = Float64[cos((n-i+0.5)*(j-1)*pi/n) for i=1:n,j=1:m]
-		p = Any[]
-		push!(p, plot(Phi[:, 1], label = "Basis 1", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 2], label = "Basis 2", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 3], label = "Basis 3", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 4], label = "Basis 4", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 5], label = "Basis 5", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 6], label = "Basis 6", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 7], label = "Basis 7", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 8], label = "Basis 8", ylim=(-1.1, 1.1)))
-		push!(p, plot(Phi[:, 9], label = "Basis 9", ylim=(-1.1, 1.1)))
-		plot(p...)
+		t = Any[]
+		push!(t, plot(Phi[:, 1], label = "Basis 1", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 2], label = "Basis 2", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 3], label = "Basis 3", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 4], label = "Basis 4", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 5], label = "Basis 5", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 6], label = "Basis 6", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 7], label = "Basis 7", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 8], label = "Basis 8", ylim=(-1.1, 1.1)))
+		push!(t, plot(Phi[:, 9], label = "Basis 9", ylim=(-1.1, 1.1)))
+		t1 = plot(t...)
+		display(t1)
 	end
-
 
 	ChebyT(x,deg) = cos(acos(x)*deg)
 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
@@ -152,9 +153,9 @@ using Base.Test
 		r = Any[]
 		push!(r, w1)
 		push!(r, w2)
-		plot(r...)
+		r1 = plot(r...)
+		display(r1)
 	end
-
 
 
 	function q4b()
@@ -196,7 +197,8 @@ using Base.Test
 		g = Any[]
 		push!(g, s1)
 		push!(g, s2)
-		plot(g...)
+		g1 = plot(g...)
+		display(g1)
 	end
 
 	function q5()
@@ -241,23 +243,27 @@ using Base.Test
 		push!(k, h1)
 		push!(k, h2)
 		push!(k, h3)
-		plot(k...)
+		k1 = plot(k...)
+		display(k1)
 	end
-
 
 	function runall()
 		println("running all questions of HW-funcapprox:")
-		display(q1(15))
-		display(q2(15))
-		display(q3(15))
-		display(q4a((5,9,15),-1,1))
+		println("Question 1")
+		q1(15)
+		println("Question 2")
+		q2(15)
+		println("Question 3")
+		q3(15)
+		println("Question 4a:")
+		q4a((5,9,15),-1,1)
 		println("Regarding q4a plots: Runge's phenomenon is a problem of oscillation at the edges of an interval that occurs when using polynomial interpolation with polynomials of high degree over a set of equispaced interpolation points.")
 		println("Going to higher degrees does not always improve accuracy.")
 		println("Question 4b")
-		display(q4b())
+		q4b()
 		println("Couldn't handle knot multiplicity with ApproXD, and other issues too")
 		println("Used CompEcon instead for question 5")
-		display(q5())
+		q5()
 		println("Setting more than one knot equal to zero made the plots disappear")
 		println("With CompEcon, 3 zero knots do the job.")
 	end
