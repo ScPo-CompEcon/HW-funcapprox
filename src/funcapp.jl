@@ -1,5 +1,3 @@
-
-
 module funcapp
 
 using FastGaussQuadrature
@@ -15,11 +13,13 @@ using ApproxFun
 using CompEcon
 
 
-	function q1(n)
+
 	ChebyT(x,deg) = cos(acos(x)*deg)
  	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
 
  	function q1(n)
+		ChebyT(x,deg) = cos(acos(x)*deg)
+	 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
  	f(x) = x .+ 2x.^2 - exp(-x)
  	 deg = n-1
  	 lb,ub = (-3.0,3.0)
@@ -32,7 +32,7 @@ using CompEcon
  	 x_new = linspace(lb,ub,n_new)
 
 
- 	 Phi_xnew = Float64[ChebyT(unitmap(xnew[i],lb,ub),j) for i=1:n_new,j=0:deg]
+ 	 Phi_x_new = Float64[ChebyT(unitmap(x_new[i],lb,ub),j) for i=1:n_new,j=0:deg]
  	 y_new = Phi_x_new * c
 	 y_true = f(x_new)
 	 err = y_new - y_true
@@ -43,11 +43,9 @@ using CompEcon
 	 push!(p,true_approx )
 	 push!(p, plot(1:n_new, err, title="Chebyshev error"))
 	 plot(p...)
-
+	 savefig("Nesrine-q1.png")
    end
-  q1(15)
 
-	end
 
 	function q2(n)
 		f(x) = x .+ 2x.^2 - exp(-x)
@@ -73,12 +71,11 @@ using CompEcon
 			push!(q, true_approxfun)
  		push!(q, plot(1:n_new, err, title="Chebyshev error"))
  		plot(q...)
-
+    savefig("Nesrine-q2.png")
 	end
 
 
 	function q3(n)
-	using Plots
 		m=9
 		Phi = Float64[cos((n-i+0.5)*(j-1)*pi/n) for i=1:n,j=1:m]
 		p = Any[]
@@ -93,6 +90,7 @@ using CompEcon
 		push!(p, plot(Phi[:, 9], label = "Basis 9", ylim=(-1.1, 1.1)))
 		plot(p...)
 		gui()
+		savefig("Nesrine-q3.png")
 	end
 
 
@@ -157,7 +155,7 @@ using CompEcon
 		push!(r,p2)
 		plot(r...)
     gui()
-
+    savefig("Nesrine-q4a.png")
 	end
 
 	function q4b()
@@ -181,26 +179,24 @@ using CompEcon
 		truth = runge(test_points);
 		e1 = getBasis(test_points,bs1) * c1 - truth;
 		e2 = getBasis(test_points,bs2) * c2 - truth;
-		figure(figsize=(8,7))
-		subplot(211)
-		plot(test_points,truth,lw=2)
-		ylim(-0.2,1.2)
-		grid()
-		title("Runge's function")
-		subplot(212)
-		plot(test_points,e1,label="equidistant",color="blue")
-		plot(test_points,e2,label="concentrated",color="red")
-		plot(unique(bs1.knots),zeros(nknots),color="blue","+")
-		plot(myknots,ones(nknots)*ylim()[1]/2,color="red","o")
-		ylim(minimum(e1)-0.1,maximum(e1)+0.1)
-grid()
-		legend(loc="upper right",prop=Dict("size"=>8))
-		title("Errors in Runge's function")
-
-end
-
-
+		s1 = plot(test_points, runge(test_points),color="red", lw=2, label="runge",
+		title="Runge's function")
+		s2 = plot(test_points, e1, color="blue", lw=2, label="approx1")
+		title!("Error in Runge's function")
+		plot!(test_points, e2, color="yellow", lw=2, label="approx2")
+		#Show knots
+		plot!(unique(bs1.knots),zeros(nknots),color="pink", marker=(5,:ellipse),
+		label = "Equidistant knots")
+	 	plot!(my_knots,zeros(my_knots),color="green", marker=(5,:xcross),
+		label = "Concentrated knots")
+		g = Any[]
+		push!(g, s1)
+		push!(g, s2)
+		plot(g...)
+    savefig("Nesrine-q4b.png")
 	end
+
+
 
 	function q5()
 		f(x) = abs(x).^0.5
@@ -215,14 +211,14 @@ end
 
 
 		eval_points = collect(linspace(lb,ub,nevals))
-		c1 = CompEcon.evalbase(b1,eval_points)[1] \ f(eval_points)
-		c2 = CompEcon.evalbase(b2,eval_points)[1] \ f(eval_points)
+		c1 = CompEcon.evalbase(b1,eval_points) \ f(eval_points)
+		c2 = CompEcon.evalbase(b2,eval_points) \ f(eval_points)
 
 
 		test_points = collect(linspace(lb,ub,1000));
  truth = f(test_points);
- p1 = CompEcon.evalbase(b1,test_points)[1] * c1;
- p2 = CompEcon.evalbase(b2,test_points)[1] * c2;
+ p1 = CompEcon.evalbase(b1,test_points) * c1;
+ p2 = CompEcon.evalbase(b2,test_points) * c2;
  e1 = p1 - truth;
  e2 = p2 - truth;
 
@@ -238,22 +234,17 @@ push!(g,l1)
 push!(g,l2)
 push!(g,l3)
 plot(g...)
+savefig("Nesrine-q5.png")
 end
-q5()
+
 		# function to run all questions
 	function runall()
 		println("running all questions of HW-funcapprox:")
-		q1(15)
 		display(q1(15))
-		q2(15)
 		display(q2(15))
-		q3()
-		dispaly(q3)
-		q4a()
-		display(q4a())
-		q4b()
+		dispaly(q3(15))
+		display(q4a(deg=(5,9,15),lb=-5.0,ub=5.0)))
 		display(q4b())
-		q5()
 		display(q5())
 	end
 
