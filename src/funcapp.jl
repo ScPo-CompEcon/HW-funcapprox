@@ -152,8 +152,8 @@ module funcapp
 
 	function q4b()
         b = BSpline(13, 3, -5.0, 5.0)
-        Basis = full(getBasis(collect(linspace(-5,5,15)),b))
-        y = r.(linspace(-5,5,15))
+        Basis = full(getBasis(collect(linspace(-5,5,65)),b))
+        y = r.(linspace(-5,5,65))
         c = Basis \ y
         x_new = linspace(-5,5,65)
         true_y = r.(x_new)
@@ -162,8 +162,8 @@ module funcapp
 
         knots = vcat( collect(linspace(-5,-1.75,3)), collect(linspace(-1,1,7)), collect(linspace(1.75,5,3)) )
         b2 = BSpline(knots, 3)
-        Basis2 = full(getBasis(knots,b2))
-        y = r.(knots)
+        Basis2 = full(getBasis(collect(x_new),b2))
+        y = r.(x_new)
         c2 = Basis2 \ y
         Basis3 = full(getBasis(collect(x_new),b2))
         Bs_y2 = Basis3*c2
@@ -181,8 +181,8 @@ module funcapp
         true_y = map(t,true_x)
         plot0 = plot(true_x,true_y)
         b = BSpline(13, 3, -1.0, 1.0)
-        Basis = full(getBasis(collect(linspace(-1,1,15)),b))
-        y = t.(linspace(-1,1,15))
+        Basis = full(getBasis(collect(linspace(-1,1,65)),b))
+        y = t.(linspace(-1,1,65))
         c = Basis \ y
         x_new = linspace(-1,1,65)
         true_y = t.(x_new)
@@ -192,8 +192,8 @@ module funcapp
         #knots = vcat( collect(linspace(-1,0,7)), 0, collect(linspace(0,1,7)) )
         knots = vcat( collect(linspace(-1,-.25,3)), collect(linspace(-.1,.1,7)), collect(linspace(.25,1,3)) )
         b2 = BSpline(knots, 3)
-        Basis2 = full(getBasis(knots,b2))
-        y = t.(knots)
+        Basis2 = full(getBasis(collect(x_new),b2))
+        y = t.(x_new)
         c2 = Basis2 \ y
         Basis3 = full(getBasis(collect(x_new),b2))
         Bs_y2 = Basis3*c2
@@ -218,8 +218,8 @@ module funcapp
 		p5a, p5b, p5c = q5()
         l = @layout [ grid(1,2); grid(1,2); grid(1,9);
         grid(1,2); grid(1,2); grid(1,3) ]
-        plot(p1a, p1b, p2a, p2b, p3a, p3b, p3c, p3d, p3e, p3f, p3g, p3h, p3i,
-                p4a_a, p4a_b, p4b_a, p4b_b, p5a, p5b, p5c, layout = l)
+        return plot(p1a, p1b, p2a, p2b, p3a, p3b, p3c, p3d, p3e, p3f, p3g, p3h, p3i,
+                p4a_a, p4a_b, p4b_a, p4b_b, p5a, p5b, p5c, layout = l, yformatter = :scientific)
 	end
 
 
