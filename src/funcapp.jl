@@ -1,88 +1,127 @@
-	
-
-module funcapp
+## Sorry for the delay. I still don’t know how to “functionize” this, so here’s just the code for each question ##
 
 
+using Plots
+using FastGaussQuadrature
+using Gadfly
+using ApproxFun ## this prints LoadError "syntax: numeric constant 1. cannot be 			##implicitely multiplied because it ends with".""
+using ApproXD
+
+Q1/
+
+a=-3
+b=3
+n=15
+J = n-1 #df approximation
+f(x)=x+2x^2-exp(-x)
+
+nodes = gausschebyshev(n) #compute n cheby nodes
+
+nodes[1] #collect cheby nodes
+x=(1/2)*(a+b) + (1/2)*(b-a)*nodes[1] #map z into x
+y=f.(x)
+z = 2.*(x-a)./(b-a) - 1 #for practicality later
+#F=map(f(x), x) #get function value at x
+
+Gadfly.plot(x=x, y=y, Geom.line) #plot f(x)
+
+#PHI=zeros(15,15)
+
+#for i in 1:size(PHI)[1], j in 1:size(PHI)[2]
+  #  PHI[i,j] = cos((n-z[i]+0.5)*(j-1)*pi/n)  ## why does not this work ?
+#end
 
 
-	# use chebyshev to interpolate this:
-	function q1(n)
-		
-	end
-
-	function q2(n)
-		
-	end
+phi = [cos(acos(z[i])j) for i = 1:15, j = 0:J] #building basis function matrix 
 
 
-	# plot the first 9 basis Chebyshev Polynomial Basisi Fnctions
-	function q3()
+c = fill(.0, n)
+c= \(phi,y) #vector of coefficients
+Gadfly.plot(x=y, y=c, Geom.line)  #plot coeeficients for fun
 
-	end
+n_new = 100 #predict 100 new nodes
+nodes_new = linspace(a,b,n_new)
+z_new = 2.*(nodes_new-a)./(b-a) - 1
+phi_new = [cos(acos(z_new[i])*j) for i = 1:n_new, j = 0:J]
 
-	ChebyT(x,deg) = cos(acos(x)*deg)
-	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
+#for i in 1:size(PHI)[1], j in 1:size(PHI)[2]
+#phi_new= cos((n-z_new[i]+0.5)*(j-1)*pi/n)
+#end
 
-	type ChebyType
-		f::Function # fuction to approximate 
-		nodes::Union{Vector,LinSpace} # evaluation points
-		basis::Matrix # basis evaluated at nodes
-		coefs::Vector # estimated coefficients
+f_hat = phi_new*c
+y = f.(nodes_new)
 
-		deg::Int 	# degree of chebypolynomial
-		lb::Float64 # bounds
-		ub::Float64
-
-		# constructor
-		function ChebyType(_nodes::Union{Vector,LinSpace},_deg,_lb,_ub,_f::Function)
-			n = length(_nodes)
-			y = _f(_nodes)
-			_basis = Float64[ChebyT(unitmap(_nodes[i],_lb,_ub),j) for i=1:n,j=0:_deg]
-			_coefs = _basis \ y  # type `?\` to find out more about the backslash operator. depending the args given, it performs a different operation
-			# create a ChebyType with those values
-			new(_f,_nodes,_basis,_coefs,_deg,_lb,_ub)
-		end
-	end
-	
-	# function to predict points using info stored in ChebyType
-	function predict(Ch::ChebyType,x_new)
-
-		true_new = Ch.f(x_new)
-		basis_new = Float64[ChebyT(unitmap(x_new[i],Ch.lb,Ch.ub),j) for i=1:length(x_new),j=0:Ch.deg]
-		basis_nodes = Float64[ChebyT(unitmap(Ch.nodes[i],Ch.lb,Ch.ub),j) for i=1:length(Ch.nodes),j=0:Ch.deg]
-		preds = basis_new * Ch.coefs
-		preds_nodes = basis_nodes * Ch.coefs
-
-		return Dict("x"=> x_new,"truth"=>true_new, "preds"=>preds, "preds_nodes" => preds_nodes)
-	end
-
-	function q4a(deg=(5,9,15),lb=-1.0,ub=1.0)
+diff = y - f_hat
+plot(diff)
+graph1 = Gadfly.plot(layer(x=nodes_new, y=y, Geom.line),layer(x=nodes_new,y=f_hat, Geom.point), layer(x=nodes_new, y=diff, Geom.line))
 
 
-	end
+Q2/
+## this suddenly stopped working as my computer seems not to be able to pre-compile ApproxFun anymore.. 
 
-	function q4b()
+  f(x) = x + 2*x^2 - exp(-x)
+a = -3
+b = 3
+FUN = Fun(f, Chebyshev(a..b))
+n_new = 100
+nodes_new2 = linspace(a,b,n_new)
+FUN_hat = FUN.(nodes_new2)
 
-		
-	end
+ n_new = 100
+x_new = linspace(a,b,n_new)
+y_predict=f_approx.(x_new)
+y_dev = abs(truef1.(x_new) - y_predict)
 
-	function q5()
+Q3/
 
-		
-	end
+J = 9
+a = -3
+b = 3
 
+poly_cheb = (x, j) -> ChebyT(unitmap(x,a,b),j-1)
 
-		# function to run all questions
-	function runall()
-		println("running all questions of HW-funcapprox:")
-		q1(15)
-		q2(15)
-		q3()
-		q4a()
-		q4b()
-		q5()
-	end
+Plots.plot([x -> poly_cheb(x, j) for j in 1:J], a, b, layout = (3,3))
 
+Q4/
 
+I couldn't do question 4.
+
+Q5/
+
+function myknots(k)
+if isodd(k)==true
+vcat(-1, -.8, collect(linspace(-.5, -.1, 5-(k+1)/2)), zeros(k), collect(linspace(.1, .5, 5-(k+1)/2)), .8, 1)
+else
+vcat(-1, -.8, collect(linspace(-.5, -.1, 5-k/2)), zeros(k), collect(linspace(.1, .5, 4-k/2)), .8, 1)
+end
 end
 
+a=-1
+b=1
+p = 13
+k = 3
+eval=65
+g(x)= abs(x)^(0.5)
+Plots.plot(g)
+
+bs_uni = BSpline(p,k,a,b) #get splines
+bs_kink= BSpline(myknots(k), k)
+
+B_uni =full(getBasis(collect(linspace(a,b,eval)),bs_uni)) #get basis functions
+B_kink =full(getBasis(collect(linspace(a,b,eval)),bs_kink))
+
+x= collect(linspace(a,b,eval)) #get coefficients
+y=g.(x)
+c_uni= \(B_uni,y)
+c_kink= \(B_kink,y)
+
+new_points = collect(linspace(a,b,1000))
+g_new_points = g.(new_points) #true function
+g_hat_uni = getBasis(new_points,bs_uni) * c_uni
+g_hat_kink = getBasis(new_points,bs_kink) * c_kink
+
+Plots.plot(new_points,g_new_points) #plot true function
+Plots.plot(new_points,g_hat_uni) #plot uni approx
+Plots.plot(new_points,g_hat_kink) #plot kink approx
+
+graph2 = Gadfly.plot(layer(x=new_points, y=g_new_points, Geom.line),layer(x=new_points,y=g_hat_uni, Geom.point), layer(x=new_points, y=g_hat_kink, Geom.point))
