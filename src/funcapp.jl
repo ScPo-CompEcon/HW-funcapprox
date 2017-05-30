@@ -1,11 +1,11 @@
-using FastGaussQuadrature
-using Gadfly
-using Base.Test
-using ApproxFun
-using ApproXD
-using Plots
-
 module funcapp
+
+	using FastGaussQuadrature
+	using Gadfly
+	using Base.Test
+	using ApproxFun
+	using ApproXD
+	using Plots
 
 	# use chebyshev to interpolate this:
 	function q1(n_cheb)
@@ -49,7 +49,7 @@ module funcapp
 		                layer(x=nodes_new,y=f_hat, Geom.point, Theme(default_point_size=1pt)))
 		graph1_2 = Gadfly.plot(x=nodes_new, y=epsi, Geom.point)
 		graph1 = hstack(graph1_1,graph1_2)
-		savefig("question1.png")
+		#savefig("question1.png")
 		display(graph1)
 		# Automated test
 		t1 = @test maximum(epsi)<1e-9
@@ -74,7 +74,7 @@ module funcapp
 	                        layer(x=nodes_new2,y=g_hat, Geom.point, Theme(default_point_size=1pt)))
 	    graph2_2 = Gadfly.plot(x=nodes_new2, y=epsi2, Geom.point)
 	    graph2 = hstack(graph2_1, graph2_2)
-			savefig("question2.png")
+			#savefig("question2.png")
 	    display(graph2)
 	    # Automated test
 	    t2 = @test maximum(epsi2)<1e-9
