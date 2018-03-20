@@ -1,19 +1,37 @@
-	
+using Plots
+using FastGaussQuadrature
+using Gadfly
+using ApproxFun
+using ApproXD
 
 module funcapp
 
 
 
-
 	# use chebyshev to interpolate this:
 	function q1(n)
-
-		return Dict(:err => 1.0)
-		
+		deg=n-1
+		upb = -3
+		lowb = 3
+		nodes = gausschebyshev(n)
+		z = 0.5(upb+lowb) + 0.5(upb-lowb)nodes[:1]
+		Phi = Matrix{Float64}(n,deg)
+		for i=1:n, j=1:(deg+1)
+			Phi[i,j]=cos(acos(nodes[:1][i])*(j-1))
+		end
+		y = f(z)
+		c = Phi\y
+		yhat = vec(Phi*c)
+		plot(y)
+		!plot(yhat)
+		return 0
 	end
 
+q1(n)
+
+
 	function q2(n)
-		
+
 	end
 
 
@@ -26,7 +44,7 @@ module funcapp
 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
 
 	type ChebyType
-		f::Function # fuction to approximate 
+		f::Function # fuction to approximate
 		nodes::Union{Vector,LinSpace} # evaluation points
 		basis::Matrix # basis evaluated at nodes
 		coefs::Vector # estimated coefficients
@@ -45,7 +63,7 @@ module funcapp
 			new(_f,_nodes,_basis,_coefs,_deg,_lb,_ub)
 		end
 	end
-	
+
 	# function to predict points using info stored in ChebyType
 	function predict(Ch::ChebyType,x_new)
 
@@ -65,12 +83,12 @@ module funcapp
 
 	function q4b()
 
-		
+
 	end
 
 	function q5()
 
-		
+
 	end
 
 
@@ -87,4 +105,3 @@ module funcapp
 
 
 end
-
