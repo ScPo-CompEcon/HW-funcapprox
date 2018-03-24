@@ -32,7 +32,6 @@ function q1(n)
 	global plot2 = plot(new_x, error, labels = ["deviation"])
 	global plot_total1 = plot(plot1, plot2)
 	return Dict(:error => maximum(error))
-	display(plot_total1)
 end
 
 function q2(n)
@@ -55,14 +54,16 @@ function q3()
 #We want to plot the following function for x = -1,1
 #for deg in 0,1,2,...,8
 	plot_total = Dict()
+	x = [-1 + (i-1)/(100 -1)*2 for i in 1:100]
 	for deg in 0:8
-		global x = [-1 + (i-1)/(100 -1)*2 for i in 1:100]
-		global y = ChebyT.(x, deg)
-		global plot_total[deg] = plot(x, y, ylim = [-1.01, 1.01], labels = ["degree = $deg"])
+		y = ChebyT.(x, deg)
+		plot_total[deg] = plot(x, y, ylim = [-1.01, 1.01], labels = ["degree = $deg"])
 	end
-	global plot_total3 = plot(plot_total[0], plot_total[1], plot_total[2], 	plot_total[3], plot_total[4], plot_total[5], plot_total[6], plot_total[7],  plot_total[8], layout = (3,3))
+	plot_total3 = plot(plot_total[0], plot_total[1], plot_total[2], plot_total[3], plot_total[4], plot_total[5], plot_total[6], plot_total[7],  plot_total[8], layout = (3,3))
  #new equally spaced points
-	global plot_eqsp = plot(x, y, ylim = [-1,1])
+	#plot_eqsp = plot(x, y, ylim = [-1,1])
+
+	return(Dict("plot" => plot_total3))
 end
 
 unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
@@ -183,11 +184,9 @@ function runall()
 	savefig("Plot2.png")
 	println("Plot for question 2 added to the current directory as a .png file.")
 	info("Question 3:")
-	q3()
-	display(plot_total3)
-	savefig("Plot3_1.png")
-	display(plot_eqsp)
-	savefig("Plot3_2.png")
+	plotq3 = q3()
+	display(plotq3)
+	savefig("Plot3.png")
 	println("Plots for question 3 added to the current directory as .png files.")
 	info("Question 4.A:")
 	q4a()
