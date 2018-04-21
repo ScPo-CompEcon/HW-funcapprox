@@ -1,30 +1,60 @@
-	
-
-module funcapp
 
 
 
+	using Plots
+	using FastGaussQuadrature
+	using ApproxFun
+	using Base.Test
+	#using ApproXD
+
+	function f(x)
+		return(x + 2 * x^2 - exp(-x))
+	end
 
 	# use chebyshev to interpolate this:
 	function q1(n)
-		
+		#deg = n-1
+		a = -3
+		b = +3
+		n = 15
+		nodes = gausschebyshev(n)[1]
+		z = 0.5 * (a+b) + 0.5 * (b-a) * nodes
+		values = f.(z)
+		Phi = [cos((n-i+0.5) * (j-1) * π/n) for i = 1:n, j = 1:n]
+		c = Phi\values
+		function prediction(x)
+			node = 2 * (x - a)/(b - a) -1
+			Phi = [cos(acos(node)*j) for j = 0:n-1]
+			return(transpose(c)*Phi)
+		end
+		new_n = 50
+		new_nodes = [a + (i-1)/(new_n -1)*(b-a) for i in 1:new_n]
+		y = f.(new_nodes)
+		yhat = prediction.(new_nodes)
+		global e = y - yhat
+		return(plot(new_nodes, e, title="Deviation in approximation from true f"))
 	end
 
 	function q2(n)
-		
+		nodes = Chebyshev(-3..3)
+		grid = points(S,n)
+		values = f.(grid)
+		predictions = Fun(S,ApproxFun.transform(nodes,values))
+		new_n
+		x = linspace(-3,3,new_n)
+		yhat = predictions.(x)
+		y = f.(x)
+		e = y - yhat
+		return(plot(x,e,title="Deviation in approximation from true f using ApproxFun"))
 	end
-
 
 	# plot the first 9 basis Chebyshev Polynomial Basisi Fnctions
 	function q3()
 
-	end
-
-	ChebyT(x,deg) = cos(acos(x)*deg)
 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
 
 	type ChebyType
-		f::Function # fuction to approximate 
+		f::Function # fuction to approximate
 		nodes::Union{Vector,LinSpace} # evaluation points
 		basis::Matrix # basis evaluated at nodes
 		coefs::Vector # estimated coefficients
@@ -43,7 +73,7 @@ module funcapp
 			new(_f,_nodes,_basis,_coefs,_deg,_lb,_ub)
 		end
 	end
-	
+
 	# function to predict points using info stored in ChebyType
 	function predict(Ch::ChebyType,x_new)
 
@@ -63,12 +93,12 @@ module funcapp
 
 	function q4b()
 
-		
+
 	end
 
 	function q5()
 
-		
+
 	end
 
 
@@ -76,13 +106,14 @@ module funcapp
 	function runall()
 		println("running all questions of HW-funcapprox:")
 		q1(15)
+		@test maximum(e) < 1e-9
 		q2(15)
 		q3()
 		q4a()
 		q4b()
 		q5()
-	end
+		end
+
 
 
 end
-
