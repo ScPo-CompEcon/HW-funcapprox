@@ -16,7 +16,6 @@ module funcapp
 		#deg = n-1
 		a = -3
 		b = +3
-		n = 15
 		nodes = gausschebyshev(n)[1]
 		z = 0.5 * (a+b) + 0.5 * (b-a) * nodes
 		values = f.(z)
@@ -35,8 +34,6 @@ module funcapp
 		global q1_plot = plot(new_nodes, e, title="Q1 - Deviation in approximation from true f")
 	end
 
-q1(n)
-
 
 	function q2(n)
 		nodes = Chebyshev(-3..3)
@@ -54,6 +51,7 @@ q1(n)
 	ChebyT(x,deg) = cos(acos(x)*deg)
 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
 	# plot the first 9 basis Chebyshev Polynomial Basisi Fnctions
+
 	function q3()
 		plot_total = Dict()
 		x = [-1 + (i-1)/(100 -1)*2 for i in 1:100]
