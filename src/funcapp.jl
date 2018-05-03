@@ -1,24 +1,64 @@
-	
-
 module funcapp
 
+	using Plots
+	using FastGaussQuadrature
+	using ApproxFun
+	using ApproXD
 
-
+	f(x) = x .+ 2x.^2 - exp(-x)
 
 	# use chebyshev to interpolate this:
 	function q1(n)
 
+		deg = n - 1
+		a = -3
+		b = +3
+		z = gausschebyshev(n)[1]
+		x = 0.5 * (a + b) + 0.5 * (b - a) * z
+		y = f(x[i])
+		cheby = [cos((n - i + 0.5) * (j - 1)* π / n) for i = 1:n, j = 1:n]
+		c = cheby \ y
+		fcheby(x, deg) = [cos(acos(x) * deg)]
+		ztransf(x,a,b) = 2 * (x - a)/(b - a) - 1
+		n2 = 100
+		x2 = linspace(a,b,n2)
+		cheby2 = [fcheby(ztransf(x2[i],a,b),j) for i in 1:n2, j = 0:n2 - 1]
+		y2 = cheby2 * c
+		y_control = f(x2[i])
+		error = y2 - y_control
+		plot1 = plot(x2, [y2, y_control], labels = ["approximation", "truth"], ylim = [-5,5], title = "Plain Vanilla")
+		plot2 = plot(x2, error, labels = ["error"])
+		plot_total = plot(plot1, plot2)
 		return Dict(:err => 1.0)
-		
+
 	end
 
 	function q2(n)
-		
+
+		a = -3
+		b = 3
+		n_new = 100
+		estimations = Fun(f,Chebyshev(Interval(a,b)))
+		x = linspace(-3,3,n_new)
+		y_control = estimations.(x)
+		y = f.(x)
+		error = y - y_control
+		plot(x,error,title="Deviation using ApproxFun")
+
 	end
 
 
 	# plot the first 9 basis Chebyshev Polynomial Basisi Fnctions
 	function q3()
+
+		plot_arr = Dict()
+		x = linspace(0,1.0,100)
+		fcheby(x,deg) = [cos(acos(x) * deg)]
+		for deg in 0:8
+			y = fcheby.(x, deg)
+			plot_arr[deg+1] = plot(x, y, ylim = [-1.0, 1.0],labels = ["degree = $deg"])
+		end
+		Plot_total = plot(title = "Chebyshev  basis functions", plot_arr[1], plot_arr[2], plot_arr[3], plot_arr[4], plot_arr[5], plot_arr[6], plot_arr[7], plot_arr[8], plot_arr[9], layout = (3,3))
 
 	end
 
@@ -26,7 +66,7 @@ module funcapp
 	unitmap(x,lb,ub) = 2.*(x.-lb)/(ub.-lb) - 1	#[a,b] -> [-1,1]
 
 	type ChebyType
-		f::Function # fuction to approximate 
+		f::Function # fuction to approximate
 		nodes::Union{Vector,LinSpace} # evaluation points
 		basis::Matrix # basis evaluated at nodes
 		coefs::Vector # estimated coefficients
@@ -45,7 +85,7 @@ module funcapp
 			new(_f,_nodes,_basis,_coefs,_deg,_lb,_ub)
 		end
 	end
-	
+
 	# function to predict points using info stored in ChebyType
 	function predict(Ch::ChebyType,x_new)
 
@@ -65,12 +105,12 @@ module funcapp
 
 	function q4b()
 
-		
+
 	end
 
 	function q5()
 
-		
+
 	end
 
 
@@ -78,13 +118,16 @@ module funcapp
 	function runall()
 		println("running all questions of HW-funcapprox:")
 		q1(15)
+		display(plot_total)
 		q2(15)
 		q3()
-		q4a()
-		q4b()
-		q5()
+		display(Plot:total)
+		#q4a()
+		#q4b()
+		#q5()
 	end
+end
+
 
 
 end
-
